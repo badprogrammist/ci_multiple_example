@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t badprogrammist/ui_multiple_example_client_test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true badprogrammist/ui_multiple_example_client_test npm run test -- --coverage
+
+after_success:
+  - docker build -t badprogrammist/ui_multiple_example_client -f ./client/Dockerfile ./client
+  - docker build -t badprogrammist/ui_multiple_example_nginx -f ./nginx/Dockerfile ./nginx
+  - docker build -t badprogrammist/ui_multiple_example_server -f ./server/Dockerfile ./server
+  - docker build -t badprogrammist/ui_multiple_example_worker -f ./worker/Dockerfile ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push badprogrammist/ui_multiple_example_client
+  - docker push badprogrammist/ui_multiple_example_nginx
+  - docker push badprogrammist/ui_multiple_example_server
+  - docker push badprogrammist/ui_multiple_example_worker
