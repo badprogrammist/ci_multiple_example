@@ -18,3 +18,15 @@ after_success:
   - docker push badprogrammist/ui_multiple_example_nginx
   - docker push badprogrammist/ui_multiple_example_server
   - docker push badprogrammist/ui_multiple_example_worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: "eu-west-1"
+  app: "ci_multiple_example"
+  env: "CiMultipleExample-env"
+  bucket_name: "elasticbeanstalk-eu-west-1-922955579840"
+  bucket_path: "ci-multiple-example"
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY

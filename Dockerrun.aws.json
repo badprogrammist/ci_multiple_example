@@ -1,0 +1,37 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "client",
+            "image": "badprogrammist/ui_multiple_example_client",
+            "hostname": "client",
+            "essential": false
+        },
+        {
+            "name": "server",
+            "image": "badprogrammist/ui_multiple_example_server",
+            "hostname": "api",
+            "essential": false
+        },
+        {
+            "name": "worker",
+            "image": "badprogrammist/ui_multiple_example_worker",
+            "essential": false
+        },
+        {
+            "name": "nginx",
+            "image": "badprogrammist/ui_multiple_example_nginx",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "links":[
+                "client",
+                "server"
+            ]
+        }
+    ]
+}
