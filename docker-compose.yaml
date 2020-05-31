@@ -1,9 +1,13 @@
 version: '3'
 services:
-  postgres:
+  db:
     image: 'postgres:latest'
+    restart: always
     environment:
-      POSTGRES_PASSWORD: 'pg_pass_example'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pg_pass_example
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
   redis:
     image: 'redis:latest'
   nginx:
@@ -13,6 +17,8 @@ services:
       context: ./nginx
     ports:
       - '3050:80'
+    depends_on:
+      - client
   api:
     build:
       dockerfile: Dockerfile.dev
@@ -23,11 +29,17 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - PGHOST=postgres
+      - PGHOST=db
       - PGPORT=5432
       - PGUSER=postgres
       - PGPASSWORD=pg_pass_example
       - PGDATABASE=postgres
+    depends_on:
+      - db
+      - redis
+    links:
+      - db
+      - redis
   client:
     build:
       dockerfile: Dockerfile.dev
@@ -37,6 +49,9 @@ services:
       - ./client:/app
     environment:
       - CI=true
+    depends_on:
+      - db
+      - redis
   worker:
     build:
       dockerfile: Dockerfile.dev
@@ -47,3 +62,6 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
